@@ -54,7 +54,7 @@ onMounted(() => {
 </script>
 
 <style>
-/* Sdílené styly pro tabulky */
+/* Shared styles for tables */
 .minimal-table {
   width: 100%;
   border-collapse: collapse;

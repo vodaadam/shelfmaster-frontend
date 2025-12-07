@@ -50,12 +50,10 @@ const selectedProduct = ref(null)
 
 const fetchData = async () => {
   try {
-    // 1. Získat název kategorie (pro levý horní roh)
     const catResponse = await axios.get(`/categories/${categoryId}`)
     categoryName.value = catResponse.data.name
 
-    // 2. Získat produkty (používám endpoint z vašeho ProductControlleru)
-    const prodResponse = await axios.get(`/products/by-data-table/${categoryId}`)
+    const prodResponse = await axios.get(`/products/by-category/${categoryId}`)
     products.value = prodResponse.data
   } catch (err) {
     console.error("Error fetching data", err)
