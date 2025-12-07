@@ -26,7 +26,7 @@
       <tr v-for="category in categories" :key="category.id">
         <td @click="goToCategory(category.id)">{{ category.name }}</td>
         <td @click="goToCategory(category.id)" style="text-align:right;color:#999;font-size:.8em;">
-          {{ category.id.substring(0,8) }}...
+          {{ category.id.substring(0, 8) }}...
         </td>
         <td>
           <button @click.stop="openEditCat(category)">Edit</button>
@@ -56,11 +56,14 @@
 
         <h4>Products in category</h4>
         <div class="list-box">
-          <label v-for="p in allProducts" :key="p.id">
+          <label v-for="p in allProducts" :key="p.id" class="product-label">
             <input type="checkbox" :value="p.id" v-model="editCat.productIds">
-            {{ p.name }}
+            <span class="product-label-text">
+                {{ p.name }} ({{ p.id.substring(0, 8) }}...)
+            </span>
           </label>
         </div>
+
 
         <div class="modal-actions">
           <button @click="updateCategory">Save</button>
@@ -75,9 +78,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import {ref, onMounted} from 'vue'
 import axios from 'axios'
-import { useRouter } from 'vue-router'
+import {useRouter} from 'vue-router'
 
 const categories = ref([])
 const loading = ref(true)
@@ -88,7 +91,7 @@ const showAddCat = ref(false)
 const newCatName = ref('')
 
 const showEditCat = ref(false)
-const editCat = ref({ id: null, name: '', productIds: [] })
+const editCat = ref({id: null, name: '', productIds: []})
 const allProducts = ref([])
 
 const minTotalStock = ref(null)
@@ -117,7 +120,7 @@ const fetchCategories = async () => {
 
 const createCategory = async () => {
   try {
-    await axios.post('/categories', { name: newCatName.value, productIds: [] })
+    await axios.post('/categories', {name: newCatName.value, productIds: []})
     showAddCat.value = false
     newCatName.value = ''
     await fetchCategories()
@@ -139,15 +142,30 @@ const deleteCategory = async (id) => {
 }
 
 const openEditCat = async (cat) => {
-  editCat.value = { id: cat.id, name: cat.name, productIds: [...(cat.productIds || [])] }
+  editCat.value = {
+    id: cat.id,
+    name: cat.name,
+    productIds: [...(cat.productIds || [])]
+  }
+
+  showEditCat.value = true
+
   try {
     const res = await axios.get('/products')
-    allProducts.value = res.data
+
+    // 🔍 DEBUG
+    console.log('=== /products RESPONSE ===')
+    console.log('status:', res.status)
+    console.log('data as object:', res.data)
+    console.log('data as JSON:', JSON.stringify(res.data, null, 2))
+    window.__products = res.data   // můžeš si to pak prohlédnout v konzoli
+
+    allProducts.value = Array.isArray(res.data) ? res.data : []
   } catch (e) {
-    console.error(e)
-    showFlash('Cannot load products')
+    console.error('Error loading products', e.response || e)
+    showFlash(e.response?.data?.message || 'Cannot load products')
+    allProducts.value = []
   }
-  showEditCat.value = true
 }
 
 const updateCategory = async () => {
@@ -170,7 +188,7 @@ const filterByStock = async () => {
   loading.value = true
   try {
     const res = await axios.get('/categories/by-total-stock', {
-      params: { minTotalStock: minTotalStock.value }
+      params: {minTotalStock: minTotalStock.value}
     })
     categories.value = res.data
     error.value = null
@@ -183,7 +201,7 @@ const filterByStock = async () => {
 }
 
 const goToCategory = (id) => {
-  router.push({ name: 'category-detail', params: { id } })
+  router.push({name: 'category-detail', params: {id}})
 }
 
 onMounted(fetchCategories)
@@ -423,6 +441,8 @@ button:nth-child(3):hover {
 
 .list-box input[type='checkbox'] {
   accent-color: #2563eb;
+  width: auto;
+  margin-bottom: 0;
 }
 
 /* Toast */
@@ -468,13 +488,16 @@ button:nth-child(3):hover {
   .view-container {
     padding: 16px;
   }
+
   .toolbar {
     flex-direction: column;
     align-items: stretch;
   }
+
   .min-stock {
     width: 100%;
   }
+
   .min-stock input {
     flex: 1;
   }

@@ -35,14 +35,14 @@
     </table>
 
     <!-- view-only modal (původní ProductModal) -->
-    <ProductModal v-if="showView" :product="selectedProduct" @close="showView=false" />
+    <ProductModal v-if="showView" :product="selectedProduct" @close="showView=false"/>
 
     <!-- Add product (nový) -->
     <div v-if="showAddProduct" class="modal-backdrop" @click.self="showAddProduct=false">
       <div class="modal">
         <h3>New product</h3>
         <input v-model="newProduct.name" placeholder="Name">
-        <textarea v-model="newProduct.description" placeholder="Description (optional)" />
+        <textarea v-model="newProduct.description" placeholder="Description (optional)"/>
 
         <h4>Stocks (unused)</h4>
         <div class="list-box">
@@ -81,7 +81,7 @@
       <div class="modal">
         <h3>Edit product</h3>
         <input v-model="editForm.name" placeholder="Name">
-        <textarea v-model="editForm.description" placeholder="Description" />
+        <textarea v-model="editForm.description" placeholder="Description"/>
 
         <h4>Categories</h4>
         <div class="list-box">
@@ -124,8 +124,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import {ref, onMounted} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
 import axios from 'axios'
 import ProductModal from '../components/ProductModal.vue'
 
@@ -141,7 +141,7 @@ const showView = ref(false)
 const selectedProduct = ref(null)
 
 const showAddProduct = ref(false)
-const newProduct = ref({ name: '', description: '', categoryIds: [], stockIds: [] })
+const newProduct = ref({name: '', description: '', categoryIds: [], stockIds: []})
 const unusedStocks = ref([])
 
 const showAddExisting = ref(false)
@@ -149,12 +149,12 @@ const existingProductId = ref('')
 const allProducts = ref([])
 
 const showEdit = ref(false)
-const editForm = ref({ id: null, name: '', description: '', categoryIds: [], stockIds: [] })
+const editForm = ref({id: null, name: '', description: '', categoryIds: [], stockIds: []})
 const allCategories = ref([])
 const allStocks = ref([])
 
 const showAddStock = ref(false)
-const newStock = ref({ warehouseSector: '', quantity: 0 })
+const newStock = ref({warehouseSector: '', quantity: 0})
 
 const flashError = ref(null)
 let flashTimeout = null
@@ -290,7 +290,7 @@ const deleteProduct = async (id) => {
 const createStock = async () => {
   try {
     await axios.post('/stocks', newStock.value)
-    newStock.value = { warehouseSector: '', quantity: 0 }
+    newStock.value = {warehouseSector: '', quantity: 0}
     showAddStock.value = false
     // pro jistotu obnovíme nepoužité pro další create
     await fetchUnusedStocks()
@@ -555,6 +555,8 @@ onMounted(fetchData)
 
 .list-box input[type='checkbox'] {
   accent-color: #2563eb;
+  width: auto;
+  margin-bottom: 0;
 }
 
 /* Akce modálu */
@@ -631,15 +633,18 @@ onMounted(fetchData)
   .view-container {
     padding: 16px;
   }
+
   .header-nav {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
+
   .toolbar {
     flex-direction: column;
     align-items: stretch;
   }
+
   .minimal-table th,
   .minimal-table td {
     padding: 10px 12px;
