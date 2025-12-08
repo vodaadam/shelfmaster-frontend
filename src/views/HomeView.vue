@@ -152,14 +152,6 @@ const openEditCat = async (cat) => {
 
   try {
     const res = await axios.get('/products')
-
-    // 🔍 DEBUG
-    console.log('=== /products RESPONSE ===')
-    console.log('status:', res.status)
-    console.log('data as object:', res.data)
-    console.log('data as JSON:', JSON.stringify(res.data, null, 2))
-    window.__products = res.data   // můžeš si to pak prohlédnout v konzoli
-
     allProducts.value = Array.isArray(res.data) ? res.data : []
   } catch (e) {
     console.error('Error loading products', e.response || e)

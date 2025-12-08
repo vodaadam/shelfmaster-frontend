@@ -34,10 +34,8 @@
       </tbody>
     </table>
 
-    <!-- view-only modal (původní ProductModal) -->
     <ProductModal v-if="showView" :product="selectedProduct" @close="showView=false"/>
 
-    <!-- Add product (nový) -->
     <div v-if="showAddProduct" class="modal-backdrop" @click.self="showAddProduct=false">
       <div class="modal">
         <h3>New product</h3>
@@ -235,17 +233,31 @@ const openAddExisting = async () => {
 
 const attachExisting = async () => {
   if (!existingProductId.value) return
+
   try {
-    // add product to category + category to product
-    await axios.post(`/categories/${categoryId}/products/${existingProductId.value}`)
-    await axios.post(`/products/${existingProductId.value}/categories/${categoryId}`)
+    const {data: category} = await axios.get(`/categories/${categoryId}`)
+
+    const productIds = new Set(category.productIds || [])
+    productIds.add(existingProductId.value)
+
+    await axios.put(`/categories/${categoryId}`, {
+      name: category.name,
+      productIds: Array.from(productIds)
+    })
+
     showAddExisting.value = false
     await fetchData()
   } catch (e) {
     console.error(e)
-    showFlash(e.response?.data?.message || 'Attach failed')
+    const msg =
+        e.response?.data?.message ||
+        e.response?.data?.error ||
+        e.message ||
+        'Attach failed'
+    showFlash(`Attach failed: ${msg}`)
   }
 }
+
 
 const openEdit = async (p) => {
   await Promise.all([fetchAllCategories(), fetchAllStocks()])
@@ -262,7 +274,6 @@ const openEdit = async (p) => {
 const updateProduct = async () => {
   try {
     await axios.put(`/products/${editForm.value.id}`, {
-      id: editForm.value.id,
       name: editForm.value.name,
       description: editForm.value.description,
       categoryIds: editForm.value.categoryIds,
@@ -272,9 +283,15 @@ const updateProduct = async () => {
     await fetchData()
   } catch (e) {
     console.error(e)
-    showFlash(e.response?.data?.message || 'Update failed')
+    const msg =
+        e.response?.data?.message ||
+        e.response?.data?.error ||
+        e.message ||
+        'Update failed'
+    showFlash(`Update failed: ${msg}`)
   }
 }
+
 
 const deleteProduct = async (id) => {
   if (!confirm('Delete this product?')) return
@@ -292,7 +309,6 @@ const createStock = async () => {
     await axios.post('/stocks', newStock.value)
     newStock.value = {warehouseSector: '', quantity: 0}
     showAddStock.value = false
-    // pro jistotu obnovíme nepoužité pro další create
     await fetchUnusedStocks()
   } catch (e) {
     console.error(e)
@@ -313,7 +329,6 @@ onMounted(fetchData)
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
-/* Hlavička s back tlačítkem */
 .header-nav {
   display: flex;
   justify-content: space-between;
@@ -347,7 +362,6 @@ onMounted(fetchData)
   transform: translateY(-1px);
 }
 
-/* Toolbar nad tabulkou */
 .toolbar {
   display: flex;
   gap: 10px;
@@ -384,7 +398,6 @@ onMounted(fetchData)
   opacity: 0.96;
 }
 
-/* Tabulka */
 .minimal-table {
   width: 100%;
   border-collapse: collapse;
