@@ -1,4 +1,4 @@
-# Vue projekt
+# Shelf master frontend
 
 Frontend aplikace postavená na **Vue** (spouštění přes `npm`).
 
